@@ -1,4 +1,4 @@
-package com.nikita.coursework.coursework.entity
+package com.nikita.coursework.entity
 
 import com.nikita.coursework.coursework.entity.base.BaseEntity
 import javax.persistence.*
@@ -11,6 +11,10 @@ class City (
     var name: String,
 
     @ManyToOne
-    @JoinColumn(name = "state_id")
-    var state: State
+    @JoinColumn(name = "country_id")
+    var country: Country,
+
+    @ManyToOne
+    @JoinColumn(name = "region_id")
+    var region: Region
 ): BaseEntity()

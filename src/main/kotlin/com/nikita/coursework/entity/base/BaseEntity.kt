@@ -8,7 +8,6 @@ import javax.persistence.Id
 import javax.persistence.MappedSuperclass
 import javax.persistence.Transient
 
-
 @MappedSuperclass
 abstract class BaseEntity : Persistable<Long> {
 

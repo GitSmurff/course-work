@@ -1,4 +1,4 @@
-package com.nikita.coursework.coursework.entity
+package com.nikita.coursework.entity
 
 import com.nikita.coursework.coursework.entity.base.BaseEntity
 import java.math.BigDecimal
@@ -12,22 +12,22 @@ class Location(
     @JoinColumn(name = "city_id")
     var city: City,
 
-    @Column(name = "city_name")
-    var cityName: String,
-
-    @Column(name = "state_short_code")
-    var stateShortCode: String?,
-
     @Column(name = "street")
-    var street: String,
-
-    @Column(name = "zip_code")
-    var zipCode: String,
+    var street: String?,
 
     @Column(name = "lat")
-    var lat: BigDecimal?,
+    var lat: BigDecimal,
 
     @Column(name = "lng")
-    var lng: BigDecimal?
+    var lng: BigDecimal,
 
+    @Column(name = "source")
+    @Enumerated(EnumType.STRING)
+    var source: LocationSourceType
 ): BaseEntity()
+enum class LocationSourceType {
+    AIRPORT,
+    TRAVELER,
+    AGENCY,
+    TOUR
+}

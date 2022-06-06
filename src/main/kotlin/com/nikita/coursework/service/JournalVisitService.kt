@@ -1,15 +1,17 @@
-package com.nikita.coursework.coursework.service
+package com.nikita.coursework.service
 
-import com.nikita.coursework.coursework.entity.*
-import com.nikita.coursework.coursework.repository.JournalVisitRepository
+import com.nikita.coursework.entity.*
+import com.nikita.coursework.reposiroty.JournalVisitRepository
 import com.querydsl.core.BooleanBuilder
+import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 interface JournalVisitService {
-//    fun findById(id: Long): JournalVisit?
-    fun create(createRequest: JournalVisitEntityCreateRequest): JournalVisit
+    fun getById(id: Long): JournalVisit
+    fun getAll(): List<JournalVisit>
+    fun create(createRequest: JournalVisitEntityCreateRequest, traveler: Traveler, operator: TourOperator, tour: Tour): JournalVisit
     fun update(journalVisit: JournalVisit, updateRequest: JournalVisitEntityUpdateRequest): JournalVisit
     fun softDelete(journalVisit: JournalVisit)
 }
@@ -18,23 +20,34 @@ interface JournalVisitService {
 class JournalVisitServiceImpl(
     private val repository: JournalVisitRepository
 ): JournalVisitService {
-//    @Transactional(readOnly = true)
-//    override fun findById(id: Long): JournalVisit? {
-//        val booleanBuilder = BooleanBuilder()
-//        booleanBuilder.and(QAirport.airport.id.eq(id))
-//        booleanBuilder.and(QAirport.airport.idDeleted.eq(false))
-//        return repository.findOne(booleanBuilder).orElseGet { null }
-//    }
+    @Transactional(readOnly = true)
+    override fun getById(id: Long): JournalVisit {
+        val booleanBuilder = BooleanBuilder()
+        booleanBuilder.and(QJournalVisit.journalVisit.id.eq(id))
+        booleanBuilder.and(QJournalVisit.journalVisit.isDeleted.eq(false))
+        return repository.findOne(booleanBuilder).orElseThrow() { throw ChangeSetPersister.NotFoundException() }
+    }
+    @Transactional(readOnly = true)
+    override fun getAll(): List<JournalVisit> {
+        val booleanBuilder = BooleanBuilder()
+
+        return repository.findAll(booleanBuilder).toList()
+    }
 
     @Transactional
-    override fun create(createRequest: JournalVisitEntityCreateRequest): JournalVisit {
+    override fun create(
+        createRequest: JournalVisitEntityCreateRequest,
+        traveler: Traveler,
+        operator: TourOperator,
+        tour: Tour
+    ): JournalVisit {
         val journalVisit = JournalVisit(
-            traveler = createRequest.traveler,
-            operator = createRequest.operator,
-            tour = createRequest.tour,
+            traveler = traveler,
+            operator = operator,
+            tour = tour,
             visitDate = createRequest.visitDate,
             isArrived = createRequest.isArrived,
-            isDeleted = createRequest.isDeleted
+            isDeleted = false
         )
 
         return repository.save(journalVisit)
@@ -65,12 +78,8 @@ class JournalVisitServiceImpl(
 }
 
 data class JournalVisitEntityCreateRequest(
-    val traveler: Traveler,
-    val operator: TourOperator,
-    val tour: Tour,
     val visitDate: LocalDate,
-    val isArrived: Boolean,
-    val isDeleted: Boolean
+    val isArrived: Boolean
 )
 
 data class JournalVisitEntityUpdateRequest(

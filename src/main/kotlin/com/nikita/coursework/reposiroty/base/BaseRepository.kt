@@ -1,4 +1,4 @@
-package com.nikita.coursework.coursework.repository.base
+package com.nikita.coursework.reposiroty.base
 
 import com.nikita.coursework.coursework.entity.base.BaseEntity
 import org.springframework.data.jpa.repository.JpaRepository

@@ -1,4 +1,4 @@
-package com.nikita.coursework.coursework.entity
+package com.nikita.coursework.entity
 
 import com.nikita.coursework.coursework.entity.base.TimedEntity
 import javax.persistence.*

@@ -1,9 +1,6 @@
-package com.nikita.coursework.coursework.repository
+package com.nikita.coursework.reposiroty
 
-import com.nikita.coursework.coursework.entity.Traveler
-import com.nikita.coursework.coursework.repository.base.BaseRepository
-import org.springframework.stereotype.Repository
+import com.nikita.coursework.entity.Traveler
+import com.nikita.coursework.reposiroty.base.BaseRepository
 
-@Repository
-interface TravelerRepository: BaseRepository<Traveler> {
-}
+interface TravelerRepository: BaseRepository<Traveler>

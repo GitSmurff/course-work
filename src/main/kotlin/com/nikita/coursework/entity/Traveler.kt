@@ -1,4 +1,4 @@
-package com.nikita.coursework.coursework.entity
+package com.nikita.coursework.entity
 
 import com.nikita.coursework.coursework.entity.base.TimedEntity
 import javax.persistence.*
@@ -21,7 +21,7 @@ class Traveler(
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Location::class)
     @JoinColumn(name = "location_id")
-    var location: Location?,
+    var location: Location,
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean

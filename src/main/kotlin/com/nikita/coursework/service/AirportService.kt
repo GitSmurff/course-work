@@ -1,15 +1,18 @@
-package com.nikita.coursework.coursework.service
+package com.nikita.coursework.service
 
-import com.nikita.coursework.coursework.entity.Airport
-import com.nikita.coursework.coursework.entity.Location
-import com.nikita.coursework.coursework.repository.AirportRepository
+import com.nikita.coursework.entity.Airport
+import com.nikita.coursework.entity.Location
+import com.nikita.coursework.entity.QAirport
+import com.nikita.coursework.reposiroty.AirportRepository
 import com.querydsl.core.BooleanBuilder
+import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 interface AirportService {
-//    fun findById(id: Long): Airport?
-    fun create(createRequest: AirportEntityCreateRequest): Airport
+    fun getById(id: Long): Airport
+    fun getAll(): List<Airport>
+    fun create(createRequest: AirportEntityCreateRequest, location: Location): Airport
     fun softDelete(airport: Airport)
 }
 
@@ -18,20 +21,28 @@ class AirportServiceImpl(
     private val repository: AirportRepository
 ): AirportService {
 
-//    @Transactional(readOnly = true)
-//    override fun findById(id: Long): Airport? {
-//        val booleanBuilder = BooleanBuilder()
-//        booleanBuilder.and(QAirport.airport.id.eq(id))
-//        booleanBuilder.and(QAirport.airport.idDeleted.eq(false))
-//        return repository.findOne(booleanBuilder).orElseGet { null }
-//    }
+    @Transactional(readOnly = true)
+    override fun getById(id: Long): Airport {
+        val booleanBuilder = BooleanBuilder()
+        booleanBuilder.and(QAirport.airport.id.eq(id))
+        booleanBuilder.and(QAirport.airport.isDeleted.eq(false))
+        return repository.findOne(booleanBuilder).orElseThrow() { throw ChangeSetPersister.NotFoundException() }
+    }
+
+    @Transactional(readOnly = true)
+    override fun getAll(): List<Airport> {
+        val booleanBuilder = BooleanBuilder()
+        booleanBuilder.and(QAirport.airport.isDeleted.eq(false))
+
+        return repository.findAll(booleanBuilder).toList()
+    }
 
     @Transactional
-    override fun create(createRequest: AirportEntityCreateRequest): Airport {
+    override fun create(createRequest: AirportEntityCreateRequest, location: Location): Airport {
         val airport = Airport(
             name = createRequest.name,
-            location = createRequest.location,
-            isDeleted = createRequest.isDeleted
+            location = location,
+            isDeleted = false
         )
         return repository.save(airport)
     }
@@ -49,7 +60,5 @@ class AirportServiceImpl(
 }
 
 data class AirportEntityCreateRequest(
-    val name: String,
-    val location: Location?,
-    val isDeleted: Boolean
+    val name: String
 )

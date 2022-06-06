@@ -1,8 +1,10 @@
-package com.nikita.coursework.coursework.service
+package com.nikita.coursework.service
 
-import com.nikita.coursework.coursework.entity.City
-import com.nikita.coursework.coursework.entity.Location
-import com.nikita.coursework.coursework.repository.LocationRepository
+import com.nikita.coursework.entity.City
+import com.nikita.coursework.entity.Location
+import com.nikita.coursework.entity.LocationSourceType
+import com.nikita.coursework.reposiroty.LocationRepository
+import com.querydsl.core.BooleanBuilder
 import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -10,6 +12,7 @@ import java.math.BigDecimal
 
 interface LocationService {
     fun getById(id: Long): Location
+    fun getAll(): List<Location>
     fun create(createRequest: LocationEntityCreateRequest): Location
     fun delete(location: Location)
 }
@@ -23,17 +26,21 @@ class LocationServiceImpl(
     override fun getById(id: Long): Location {
         return repository.findById(id).orElseThrow { throw ChangeSetPersister.NotFoundException() }
     }
+    @Transactional(readOnly = true)
+    override fun getAll(): List<Location> {
+        val booleanBuilder = BooleanBuilder()
+
+        return repository.findAll(booleanBuilder).toList()
+    }
 
     @Transactional
     override fun create(createRequest: LocationEntityCreateRequest): Location {
         val location = Location(
             city = createRequest.city,
-            cityName = createRequest.cityName,
-            stateShortCode = createRequest.stateShortCode,
             street = createRequest.street,
-            zipCode = createRequest.zipCode,
             lat = createRequest.lat,
-            lng = createRequest.lng
+            lng = createRequest.lng,
+            source = createRequest.source
         )
 
         return repository.save(location)
@@ -49,10 +56,8 @@ class LocationServiceImpl(
 
 data class LocationEntityCreateRequest(
     val city: City,
-    val cityName: String,
-    val stateShortCode: String?,
-    val street: String,
-    val zipCode: String,
-    val lat: BigDecimal?,
-    val lng: BigDecimal?
+    val street: String?,
+    val lat: BigDecimal,
+    val lng: BigDecimal,
+    val source: LocationSourceType
 )

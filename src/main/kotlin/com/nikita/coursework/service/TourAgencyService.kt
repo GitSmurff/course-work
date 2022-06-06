@@ -1,15 +1,18 @@
-package com.nikita.coursework.coursework.service
+package com.nikita.coursework.service
 
-import com.nikita.coursework.coursework.entity.Location
-import com.nikita.coursework.coursework.entity.TourAgency
-import com.nikita.coursework.coursework.repository.TourAgencyRepository
+import com.nikita.coursework.entity.Location
+import com.nikita.coursework.entity.QTourAgency
+import com.nikita.coursework.entity.TourAgency
+import com.nikita.coursework.reposiroty.TourAgencyRepository
 import com.querydsl.core.BooleanBuilder
+import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 interface TourAgencyService {
-//    fun findById(id: Long): TourAgency?
-    fun create(createRequest: TourAgencyEntityCreateRequest): TourAgency
+    fun getById(id: Long): TourAgency
+    fun getAll(): List<TourAgency>
+    fun create(createRequest: TourAgencyEntityCreateRequest, location: Location): TourAgency
     fun softDelete(tourAgency: TourAgency)
 }
 
@@ -17,20 +20,26 @@ interface TourAgencyService {
 class TourAgencyServiceImpl(
     private val repository: TourAgencyRepository
 ): TourAgencyService {
-//    @Transactional(readOnly = true)
-//    override fun findById(id: Long): TourAgency? {
-//        val booleanBuilder = BooleanBuilder()
-//        booleanBuilder.and(QTourAgency.tourAgency.id.eq(id))
-//        booleanBuilder.and(QTourAgency.tourAgency.idDeleted.eq(false))
-//        return repository.findOne(booleanBuilder).orElseGet { null }
-//    }
+    @Transactional(readOnly = true)
+    override fun getById(id: Long): TourAgency {
+        val booleanBuilder = BooleanBuilder()
+        booleanBuilder.and(QTourAgency.tourAgency.id.eq(id))
+        booleanBuilder.and(QTourAgency.tourAgency.isDeleted.eq(false))
+        return repository.findOne(booleanBuilder).orElseThrow { throw ChangeSetPersister.NotFoundException() }
+    }
+    @Transactional(readOnly = true)
+    override fun getAll(): List<TourAgency> {
+        val booleanBuilder = BooleanBuilder()
+
+        return repository.findAll(booleanBuilder).toList()
+    }
 
     @Transactional
-    override fun create(createRequest: TourAgencyEntityCreateRequest): TourAgency {
+    override fun create(createRequest: TourAgencyEntityCreateRequest, location: Location): TourAgency {
         val tourAgency = TourAgency(
             name = createRequest.name,
-            location = createRequest.location,
-            isDeleted = createRequest.isDeleted
+            location = location,
+            isDeleted = false
         )
 
         return repository.save(tourAgency)
@@ -49,7 +58,5 @@ class TourAgencyServiceImpl(
 }
 
 data class TourAgencyEntityCreateRequest(
-    val name: String,
-    val location: Location?,
-    val isDeleted: Boolean
+    val name: String
 )

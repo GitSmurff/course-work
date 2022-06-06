@@ -1,4 +1,4 @@
-package com.nikita.coursework.coursework.entity
+package com.nikita.coursework.entity
 
 import com.nikita.coursework.coursework.entity.base.TimedEntity
 import java.math.BigDecimal
@@ -17,13 +17,9 @@ class Tour(
     @JoinColumn(name = "agency_id")
     var agency: TourAgency,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Location::class)
     @JoinColumn(name = "location_id")
     var location: Location,
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "tour_type_id")
-    var tourType: TourType,
 
     @Column(name = "tour_name")
     var name: String,
